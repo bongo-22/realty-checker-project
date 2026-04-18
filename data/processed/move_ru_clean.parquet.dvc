@@ -1,0 +1,5 @@
+outs:
+- md5: 2efba6e2bd67c553c9c53fb788ca8867
+  size: 9413076
+  hash: md5
+  path: move_ru_clean.parquet

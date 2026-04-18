@@ -1,47 +1,30 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
-.env
-.venv
+*.pyo
+*.pyd
+.venv/
 venv/
-env/
-ENV/
-pip-log.txt
-pip-delete-this-directory.txt
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.mypy_cache/
-.dmypy.json
-dmypy.json
-*.log
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
 
 # Data
-/data/raw/
-/data/processed/
-/data/external/
-*.csv
-*.json
-*.jpg
-*.jpeg
-*.png
-*.gif
+data/raw/*
+data/processed/*
+data/external/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
 
-# DVC
-.dvc/tmp/
-.dvc/cache/
+# DVC metafiles should stay tracked
+!data/processed/*.dvc
+
+# Temporary
+tmp_images/
+*.log

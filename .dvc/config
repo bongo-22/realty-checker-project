@@ -1,4 +1,8 @@
 [core]
-    remote = local
+    remote = storage
 ['remote "local"']
     url = /home/dubovitskiy_fedor/dvc-storage
+['remote "storage"']
+    url = s3://realty-checker-fedor
+    endpointurl = https://storage.yandexcloud.net
+    region = ru-central1

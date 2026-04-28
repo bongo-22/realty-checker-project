@@ -26,15 +26,19 @@ def build_features(data: pd.DataFrame) -> pd.DataFrame:
     # =========================
     # DROP LEAKAGE
     # =========================
-
-    df = df.drop(columns=[
-        "price",
-        "url",
-        "listing_id",
-        "image_urls",
-        "parse_errors",
-        "title",
-        "description",
-    ])
+    
+    df = df.drop(
+        columns=[
+            "price",
+            "price_per_m2",
+            "url",
+            "listing_id",
+            "image_urls",
+            "parse_errors",
+            "title",
+            "description",
+        ],
+        errors="ignore",
+    )
 
     return df

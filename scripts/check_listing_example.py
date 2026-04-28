@@ -9,7 +9,7 @@ if PROJECT_ROOT not in sys.path:
 from src.services.price_checker import PriceChecker
 
 
-num_features = [
+NUM_FEATURES = [
     "rooms",
     "area_total",
     "area_kitchen",
@@ -34,7 +34,7 @@ num_features = [
     "is_new_building",
 ]
 
-cat_features = [
+CAT_FEATURES = [
     "okrug",
     "district",
     "metro",
@@ -43,40 +43,120 @@ cat_features = [
 ]
 
 
-checker = PriceChecker(
-    model_path="models/catboost_optuna.cbm",
-    num_features=num_features,
-    cat_features=cat_features,
-    threshold_percent=10.0,
-)
+def input_float(prompt: str, default=None):
+    value = input(prompt).strip()
+
+    if value == "" and default is not None:
+        return default
+
+    return float(value.replace(",", "."))
 
 
-listing = {
-    "price": 21_200_000,
-    "rooms": 1,
-    "area_total": 34.0,
-    "area_kitchen": 8.0,
-    "area_living": 24.0,
-    "metro_time_min": 6,
-    "floor": 5,
-    "total_floors": 10,
-    "year_built": None,
-    "completion_year": None,
-    "photo_count": 46,
-    "is_studio": 0,
-    "has_balcony": 1,
-    "has_elevator": 0,
-    "has_parking": 0,
-    "has_renovation": 1,
+def input_str(prompt: str, default="unknown"):
+    value = input(prompt).strip()
 
-    "okrug": "ЮЗАО",
-    "district": "Академический",
-    "metro": "Академическая",
-    "house_type": "unknown",
-    "seller_type": "owner",
-}
+    if value == "":
+        return default
+
+    return value
 
 
-result = checker.check_price(listing)
+def collect_listing_from_user() -> dict:
+    print()
+    print("REALTY CHECKER — ВВОД ДАННЫХ ОБЪЯВЛЕНИЯ")
+    print("Если не знаете значение — нажмите Enter.")
+    print()
 
-print(result)
+    price = input_float("Цена квартиры, руб: ")
+    area_total = input_float("Общая площадь, м²: ")
+    rooms = input_float("Количество комнат: ")
+
+    area_kitchen = input_float("Площадь кухни, м² [неизвестно]: ", default=None)
+    area_living = input_float("Жилая площадь, м² [неизвестно]: ", default=None)
+    metro_time_min = input_float("Время до метро, мин [неизвестно]: ", default=None)
+
+    floor = input_float("Этаж [неизвестно]: ", default=None)
+    total_floors = input_float("Всего этажей в доме [неизвестно]: ", default=None)
+
+    okrug = input_str("Округ [unknown]: ")
+    district = input_str("Район [unknown]: ")
+    metro = input_str("Метро [unknown]: ")
+
+    listing = {
+        "price": price,
+        "rooms": rooms,
+        "area_total": area_total,
+        "area_kitchen": area_kitchen,
+        "area_living": area_living,
+        "metro_time_min": metro_time_min,
+        "floor": floor,
+        "total_floors": total_floors,
+
+        # значения по умолчанию
+        "year_built": None,
+        "completion_year": None,
+        "photo_count": 0,
+        "is_studio": 1 if rooms == 0 else 0,
+        "has_balcony": 0,
+        "has_elevator": 0,
+        "has_parking": 0,
+        "has_renovation": 0,
+
+        "okrug": okrug,
+        "district": district,
+        "metro": metro,
+        "house_type": "unknown",
+        "seller_type": "unknown",
+    }
+
+    return listing
+
+
+def print_report(result: dict) -> None:
+    print()
+    print("REALTY CHECKER — ОТЧЕТ ПО ОБЪЯВЛЕНИЮ")
+    print()
+
+    print(f"Цена квартиры: {result['actual_price']:,.0f} руб.".replace(",", " "))
+    print(f"Площадь: {result['area_total']} м²")
+
+    print()
+    print("Оценка цены:")
+    print(f"- Реальная цена за м²: {result['actual_price_per_m2']:,.0f} руб.".replace(",", " "))
+    print(f"- Оценка модели за м²: {result['predicted_price_per_m2']:,.0f} руб.".replace(",", " "))
+    print(f"- Отклонение: {result['diff_percent']:.2f}%")
+
+    print()
+    print("Вердикт:")
+
+    if result["verdict"] == "overpriced":
+        print("Объявление выглядит переоцененным.")
+    elif result["verdict"] == "underpriced":
+        print("Объявление выглядит недооцененным.")
+    else:
+        print("Цена близка к рыночной.")
+
+    print()
+    print("Комментарий:")
+    print(result["comment"])
+
+    print("=" * 60)
+    print()
+
+
+def main() -> None:
+    checker = PriceChecker(
+        model_path="models/catboost_optuna.cbm",
+        num_features=NUM_FEATURES,
+        cat_features=CAT_FEATURES,
+        threshold_percent=10.0,
+    )
+
+    listing = collect_listing_from_user()
+    result = checker.check_price(listing)
+
+    print_report(result)
+
+
+if __name__ == "__main__":
+    main()

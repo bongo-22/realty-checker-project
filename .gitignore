@@ -28,3 +28,11 @@ data/external/*
 # Temporary
 tmp_images/
 *.log
+
+# CatBoost temporary files
+catboost_info/
+models/catboost_info/
+
+.env
+models/*
+!models.dvc

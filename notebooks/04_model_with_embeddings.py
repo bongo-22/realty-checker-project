@@ -17,9 +17,11 @@ from src.features.build_features import build_features
 
 
 data = pd.read_parquet("data/processed/move_ru_with_embeddings.parquet")
-data = build_features(data)
 
 target = "price_per_m2"
+y = data[target].copy()
+
+data = build_features(data)
 
 num_features = [
     "rooms",
@@ -64,7 +66,6 @@ data[cat_features] = data[cat_features].fillna("unknown")
 features = num_features + cat_features + embedding_features
 
 X = data[features]
-y = data[target]
 
 X_train, X_test, y_train, y_test = train_test_split(
     X,
